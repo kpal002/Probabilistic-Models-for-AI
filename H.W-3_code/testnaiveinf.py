@@ -76,12 +76,59 @@ def buildstudentex():
     # note you will need to have g have values of 0,1,2
     # (not 1,2,3 as in the text)
 
-    # remove line below when you write your code
-    # it is okay just to "hard code" all of the values in here
-    pass
-    # will need to return your factorset (studentbn below) as the 
-    # variables in the order d,i,g,s,l (as below)
-    # return studentbn,(d,i,g,s,l)
+    d = discretevariable("d",2)
+    i = discretevariable("i",2)
+    g = discretevariable("g",3)
+    s = discretevariable("s",2)
+    l = discretevariable("l",2)
+    
+    pd = discretefactor({d})
+    pd[{d:0}] = 0.6
+    pd[{d:1}] = 0.4
+
+    pi = discretefactor({i})
+    pi[{i:0}] = 0.7
+    pi[{i:1}] = 0.3
+
+    pgid = discretefactor({g,i,d})
+    pgid[{g:0,i:0,d:0}] = 0.3
+    pgid[{g:0,i:0,d:1}] = 0.05
+    pgid[{g:0,i:1,d:0}] = 0.9
+    pgid[{g:0,i:1,d:1}] = 0.5
+
+    pgid[{g:1,i:0,d:0}] = 0.4
+    pgid[{g:1,i:0,d:1}] = 0.25
+    pgid[{g:1,i:1,d:0}] = 0.08
+    pgid[{g:1,i:1,d:1}] = 0.3
+
+    pgid[{g:0,i:0,d:0}] = 0.3
+    pgid[{g:0,i:0,d:1}] = 0.7
+    pgid[{g:0,i:1,d:0}] = 0.02
+    pgid[{g:0,i:1,d:1}] = 0.2
+
+    psi = discretefactor({s,i})
+    psi[{s:0,i:0}] = 0.95
+    psi[{s:0,i:1}] = 0.2
+    psi[{s:1,i:0}] = 0.05
+    psi[{s:1,i:1}] = 0.8
+
+    plg = discretefactor({l,g})
+    plg[{l:0,g:0}] = 0.1
+    plg[{l:0,g:1}] = 0.4
+    plg[{l:0,g:2}] = 0.99
+    plg[{l:1,g:0}] = 0.9
+    plg[{l:1,g:1}] = 0.6
+    plg[{l:1,g:2}] = 0.01
+    
+
+    studentex = factorset()
+    studentex.addfactor(pd)
+    studentex.addfactor(pi)
+    studentex.addfactor(pgid)
+    studentex.addfactor(psi)
+    studentex.addfactor(plg)
+
+    return studentex,(d,i,g,s,l)
 
 
 #### below is the testing code
