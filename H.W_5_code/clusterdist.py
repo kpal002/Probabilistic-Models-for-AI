@@ -1,4 +1,5 @@
 from factor import *
+from functools import reduce
 import copy
 
 # describes a distribution over a cluster graph
@@ -43,6 +44,50 @@ class clusterdist:
     # (not necessarily a tree, despite the name -- it might be
     #  multiple disconnected trees -- this happens often once
     #  evidence is introduced)
+
+
+    def setmu(self ,i,j,f):
+        if i<j: 
+            self._mu[(i,j)] = f
+        else:
+            self._mu[(j,i)] = f
+
+    def bumsg(self,i,j):
+        sigma = self._beta[i].marginalize(self._beta[i].scope - self.getmu(i,j).scope) 
+        oldbeta = self._beta[j]
+        self._beta[j] = self._beta[j]*sigma / self.getmu(i,j) 
+        betadiff = (self._beta[ j] - oldbeta).maxabs()
+        self.setmu(i ,j ,sigma)
+    
+
+    def treepassup(self ,cleft ,root):
+        cleft.remove(root)
+        for i in self._U.adj(root):
+            if i in cleft: 
+                self.treepassup(cleft ,i) 
+                self.bumsg(i,root)
+
+
+    def treepassdown( self , cleft , root ):
+        cleft.remove(root)
+        for i in self._U.adj(root):
+            if i in cleft:
+                self.bumsg(root,i) 
+                self.treepassdown(cleft ,i)
+
+
+
+    def treepass(self , cleft ):
+        root = next(iter(cleft))
+        self.treepassup (copy.copy(cleft) , root )
+        self .treepassdown(cleft ,root)
+
+    def forestpass(self ):
+        cleft = set(range(len(self._U.clusters)))
+        while len( cleft )>0: 
+            self.treepass(cleft)
+
+
     def treecalibrate(self):
         ### For you to write (along with any helper methods you wish)
-        pass
+        self.forestpass()
